@@ -1,0 +1,112 @@
+plugins {
+    id "com.hpe.kraal" version "0.0.15"
+    id "io.spring.dependency-management" version "1.0.6.RELEASE"
+    id "com.github.johnrengelman.shadow" version "4.0.2"
+    id "net.ltgt.apt-eclipse" version "0.18"
+    id "net.ltgt.apt-idea" version "0.18"
+    id "org.jetbrains.kotlin.jvm" version "1.3.31"
+    id "org.jetbrains.kotlin.plugin.allopen" version "1.3.31"
+    id "org.jetbrains.kotlin.kapt" version "1.3.31"
+}
+
+apply plugin:"application"
+apply plugin:"groovy"
+apply plugin:"java"
+
+version "0.1"
+group "com.allangomes.micronaut"
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url 'https://kotlin.bintray.com/ktor' }
+    maven { url "https://jcenter.bintray.com" }
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/"}
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "io.micronaut:micronaut-bom:$vMicronaut"
+    }
+}
+
+dependencies {
+
+    /* [Micronaut] */
+    kapt "io.micronaut:micronaut-inject-java"
+    kapt "io.micronaut:micronaut-validation"
+    runtime 'io.micronaut:micronaut-core'
+    compile "io.micronaut:micronaut-inject"
+    compile "io.micronaut:micronaut-validation"
+    compile "io.micronaut:micronaut-runtime"
+    compile "io.micronaut:micronaut-http-client"
+    compileOnly "io.micronaut:micronaut-inject-java"
+    testCompile "io.micronaut:micronaut-inject-groovy"
+    testCompile "io.micronaut:micronaut-inject-java"
+    /* [Micronaut] */
+
+
+    /* [Graau] */
+    kapt "io.micronaut:micronaut-graal"
+    compileOnly "com.oracle.substratevm:svm"
+    /* [Graau] */
+
+
+    /* [Ktor] */
+    compile "io.ktor:ktor-server-netty:1.2.0"
+    compile "io.ktor:ktor-gson:1.2.0"
+    /* [Ktor] */
+
+
+    /* [Kotlin] */
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$vKotlin"
+    compile "org.jetbrains.kotlin:kotlin-reflect:$vKotlin"
+    compile "io.micronaut.kotlin:micronaut-kotlin-runtime:$vMicronautKotlin"
+    compile "io.micronaut.kotlin:micronaut-ktor:$vMicronautKotlin"
+    /* [Kotlin] */
+
+
+    /* [Coroutines] */
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$vCoroutines"
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core-native:$vCoroutines"
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$vCoroutines"
+    /* [Coroutines] */
+
+
+    /* [Others] */
+    runtime "ch.qos.logback:logback-classic:1.2.3"
+    testCompile("org.spockframework:spock-core") {
+        exclude group: "org.codehaus.groovy", module: "groovy-all"
+    }
+    testCompile "junit:junit:4.12"
+    testCompile "org.hamcrest:hamcrest-all:1.3"
+    /* [Others] */
+}
+
+shadowJar {
+    mergeServiceFiles()
+}
+
+run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1')
+
+mainClassName = "com.allangomes.micronaut.Application"
+
+tasks.withType(JavaCompile){
+    options.encoding = "UTF-8"
+    options.compilerArgs.add('-parameters')
+}
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
+allOpen {
+    annotation("io.micronaut.aop.Around")
+}

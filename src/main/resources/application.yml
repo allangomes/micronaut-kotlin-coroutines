@@ -1,0 +1,8 @@
+micronaut:
+    application:
+        name: basic-app
+    server:
+        cors:
+            enabled: true
+jackson:
+    bean-introspection-module: true
